@@ -7,10 +7,10 @@ from titiler.core.algorithm import Algorithms
 
 from fastapi import FastAPI
 
-from .dependencies import StravaHeatmap, BBoxStats
+from .dependencies import StravaHeatmap, StravaCLAHE, BBoxStats
 from titiler.core.factory import TilerFactory
 
-algorithms: Algorithms = default_algorithms.register({"stravaheatmap": StravaHeatmap, "bboxstats": BBoxStats})
+algorithms: Algorithms = default_algorithms.register({"stravaheatmap": StravaHeatmap, "stravaclahe": StravaCLAHE, "bboxstats": BBoxStats})
 PostProcessParams: Callable = algorithms.dependency
 
 app = FastAPI(root_path="/tiler")
