@@ -134,6 +134,34 @@ class BBoxStats(BaseAlgorithm):
             assets=img.assets,
             crs=img.crs,
             bounds=img.bounds,
+        ) 
+
+
+class MaskedRescale(BaseAlgorithm):
+    '''
+    requires that the layer sets the buffer parameter &buffer=x
+    '''
+    input_nbands: int = 1
+    output_nbands: int = 1
+    output_dtype: str = "uint8"
+
+    min: float = -1
+    max: float = 1
+
+    def __call__(self, img: ImageData) -> ImageData:
+        mask = (np.isnan(img.data))[0]
+        img.rescale(
+            in_range=((self.min, self.max),),
+            out_range=((0, 255),)
+        )
+        data = np.where(~mask, img.data, 0)
+        modified_mask = np.where(mask, 255, 0)
+        masked_array = np.ma.MaskedArray(data, mask=modified_mask)
+        return ImageData(
+            masked_array,
+            assets=img.assets,
+            crs=img.crs,
+            bounds=img.bounds,
         )
 
 
@@ -141,5 +169,6 @@ algorithms: Algorithms = default_algorithms.register({
     "stravaheatmap": StravaHeatmap, 
     "bboxstats": BBoxStats,
     "stravaclahe": StravaCLAHE,
+    "masked-rescale": MaskedRescale,
 })
 PostProcessParams: Callable = algorithms.dependency
